@@ -2,14 +2,14 @@ use std::f32::consts::PI;
 
 use macroquad::prelude::*;
 
-use super::map::Map;
+use super::{bullet::Bullet, map::Map, textures::TextureManager, world::World};
 
 const PLAYER_RADIUS: f32 = 4.0;
 const PLAYER_DEFAULT_SPEED: f32 = 20.0;
 
 const ROTATE_SPEED_RADIANS: f32 = PI * 50.0;
 
-// const PLAYER_GLANCE_LEN: f32 = 100.0;
+const PLAYER_COOLDWON: f32 = 10.0;
 
 pub struct Player {
     pub pos: Vec2,
@@ -17,9 +17,10 @@ pub struct Player {
     radius: f32,
     // glance_len: f32,
     dir: Vec2,
-    offset: Vec2,
     rotate: f32,
     speed: f32,
+    cooldown: f32,
+    cooldownleft: f32,
 }
 impl Player {
     pub fn new(x_pos: f32, y_pos: f32) -> Player {
@@ -28,14 +29,19 @@ impl Player {
             view_angle: 0.0,
             radius: PLAYER_RADIUS,
             dir: Vec2::ZERO,
-            offset: Vec2::ZERO,
-            // glance_len: PLAYER_GLANCE_LEN,
             rotate: 0.0,
             speed: PLAYER_DEFAULT_SPEED,
+            cooldown: PLAYER_COOLDWON,
+            cooldownleft: 0.0,
         };
     }
-    pub fn update(&mut self, map: &Map) {
-        self.key_handler();
+    pub fn update(
+        &mut self,
+        map: &Map,
+        bullets: &mut Vec<Bullet>,
+        texture_manager: &TextureManager,
+    ) {
+        self.shooting(texture_manager, bullets);
         self.movement(map);
     }
     pub fn draw(&self) {
@@ -54,19 +60,19 @@ impl Player {
             },
         );
     }
-    fn key_handler(&mut self) {
-        self.rotate = -mouse_delta_position().x;
-        if is_key_down(KeyCode::W) {
-            self.offset.y += 1.0;
+    fn shooting(&mut self, texture_manager: &TextureManager, bullets: &mut Vec<Bullet>) {
+        if is_key_pressed(KeyCode::Space) {
+            if self.cooldownleft == 0.0 {
+                bullets.push(Bullet::new(
+                    self.pos,
+                    vec2(self.view_angle.cos(), self.view_angle.sin()),
+                    texture_manager.bullet_texture.clone(),
+                ));
+            }
         }
-        if is_key_down(KeyCode::S) {
-            self.offset.y -= 1.0;
-        }
-        if is_key_down(KeyCode::A) {
-            self.offset.x += 1.0;
-        }
-        if is_key_down(KeyCode::D) {
-            self.offset.x -= 1.0;
+        self.cooldownleft -= get_frame_time();
+        if self.cooldownleft < 0.0 {
+            self.cooldownleft = 0.0;
         }
     }
 
@@ -99,6 +105,20 @@ impl Player {
         }
     }
     fn movement(&mut self, map: &Map) {
+        let mut offset = Vec2::ZERO;
+        self.rotate = -mouse_delta_position().x;
+        if is_key_down(KeyCode::W) {
+            offset.y += 1.0;
+        }
+        if is_key_down(KeyCode::S) {
+            offset.y -= 1.0;
+        }
+        if is_key_down(KeyCode::A) {
+            offset.x += 1.0;
+        }
+        if is_key_down(KeyCode::D) {
+            offset.x -= 1.0;
+        }
         let delta = get_frame_time();
         self.view_angle += self.rotate * ROTATE_SPEED_RADIANS * delta;
         if self.view_angle < 0.0 {
@@ -106,14 +126,13 @@ impl Player {
         } else if self.view_angle > PI * 2.0 {
             self.view_angle = 0.00001;
         }
-        self.dir = (self.offset.y * Vec2::new(self.view_angle.cos(), self.view_angle.sin())
-            + self.offset.x * Vec2::new(self.view_angle.sin(), -self.view_angle.cos()))
+        self.dir = (offset.y * Vec2::new(self.view_angle.cos(), self.view_angle.sin())
+            + offset.x * Vec2::new(self.view_angle.sin(), -self.view_angle.cos()))
             * self.speed
             * delta;
         self.check_for_collision(map);
         self.pos += self.dir;
         self.dir = Vec2::ZERO;
-        self.offset = Vec2::ZERO;
         self.rotate = 0.0;
     }
 }

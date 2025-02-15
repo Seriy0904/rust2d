@@ -53,12 +53,14 @@ impl Camera {
     }
     fn draw_entity(&self, entity: &SpritedEntityData) {
         let dif = entity.pos - self.pos;
-        let dist = dif.length();
+        let mut dist = dif.length();
 
         let wall_width = screen_width() / (self.wall_dists.len()) as f32;
 
-        let perspective_size = Vec2::new(entity.size.x, entity.size.y) * 40.0 / (dist);
-
+        if dist < 1.0 {
+            dist = 1.0;
+        }
+        let perspective_size = entity.size * 40.0 / (dist);
         let x_pos = self.x_from_dif(dif);
         if x_pos + perspective_size.x / 2.0 >= 0.0
             && x_pos - perspective_size.x / 2.0 <= screen_width()
@@ -71,7 +73,7 @@ impl Camera {
                 }
                 if self.wall_dists[current_wall as usize] as f32 > dist {
                     draw_texture_ex(
-                        &entity.texture,
+                        &(entity.texture.clone()),
                         current_wall as f32 * wall_width,
                         screen_height() / 2.0 - perspective_size.y / 2.0,
                         Color {
