@@ -1,23 +1,16 @@
-use std::{sync::Arc, vec};
+use std::vec;
 
 use macroquad::{
-    camera,
     color::Color,
-    math::{vec2, Vec2},
+    math::Vec2,
     shapes::{draw_line, draw_rectangle},
     text::draw_text,
-    texture::load_texture,
     window::{screen_height, screen_width},
 };
 
 use super::{
-    bullet::{self, Bullet},
-    camera::Camera,
-    enemy::Enemy,
-    entities::SpritedEntityData,
-    map::Map,
-    player::Player,
-    textures::TextureManager,
+    bullet::Bullet, camera::Camera, enemy::Enemy, entities::SpritedEntityData, map::Map,
+    player::Player, textures::TextureManager,
 };
 
 pub const VIEW_LENGTH: f32 = 300.0;
@@ -94,9 +87,6 @@ impl World {
         }
         return entities;
     }
-    pub fn add_bullet(&mut self, bullet: Bullet) {
-        self.bullets.push(bullet);
-    }
     fn draw_hud(&self) {
         draw_rectangle(
             0.0,
@@ -126,6 +116,21 @@ impl World {
         draw_text(
             "100 HP",
             120.0,
+            screen_height() - 30.0,
+            70.0,
+            Color {
+                r: 0.8,
+                g: 0.0,
+                b: 0.0,
+                a: 1.0,
+            },
+        );
+        draw_text(
+            &format!(
+                "SECONDS: {}",
+                ((self.player.cooldownleft * 10.0) as u32) as f32 / 10.0
+            ),
+            350.0,
             screen_height() - 30.0,
             70.0,
             Color {

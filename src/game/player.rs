@@ -2,14 +2,14 @@ use std::f32::consts::PI;
 
 use macroquad::prelude::*;
 
-use super::{bullet::Bullet, map::Map, textures::TextureManager, world::World};
+use super::{bullet::Bullet, map::Map, textures::TextureManager};
 
 const PLAYER_RADIUS: f32 = 4.0;
 const PLAYER_DEFAULT_SPEED: f32 = 20.0;
 
 const ROTATE_SPEED_RADIANS: f32 = PI * 50.0;
 
-const PLAYER_COOLDWON: f32 = 10.0;
+const PLAYER_COOLDWON: f32 = 5.0;
 
 pub struct Player {
     pub pos: Vec2,
@@ -20,7 +20,7 @@ pub struct Player {
     rotate: f32,
     speed: f32,
     cooldown: f32,
-    cooldownleft: f32,
+    pub cooldownleft: f32,
 }
 impl Player {
     pub fn new(x_pos: f32, y_pos: f32) -> Player {
@@ -68,6 +68,7 @@ impl Player {
                     vec2(self.view_angle.cos(), self.view_angle.sin()),
                     texture_manager.bullet_texture.clone(),
                 ));
+                self.cooldownleft = self.cooldown;
             }
         }
         self.cooldownleft -= get_frame_time();
