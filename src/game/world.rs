@@ -7,7 +7,7 @@ use macroquad::{
     window::{screen_height, screen_width},
 };
 
-use super::{camera::Camera, entities::SpritedEntity, map::Map, player::Player};
+use super::{camera::Camera, enemy::Enemy, entities::SpritedEntityData, map::Map, player::Player};
 
 pub const VIEW_LENGTH: f32 = 300.0;
 
@@ -15,7 +15,7 @@ pub struct World {
     player: Player,
     map: Map,
     camera: Camera,
-    enemies: Vec<SpritedEntity>,
+    enemies: Vec<Enemy>,
 }
 impl World {
     pub async fn new() -> World {
@@ -25,16 +25,16 @@ impl World {
         let texture = load_texture("src\\assets\\chel.png").await.unwrap();
 
         let enemies = vec![
-            SpritedEntity::new(
+            Enemy::new(SpritedEntityData::new(
                 Vec2::new(90.0, 90.0),
                 Vec2::new(texture.width() / 3.0, texture.height() / 3.0),
                 texture.clone(),
-            ),
-            SpritedEntity::new(
+            )),
+            Enemy::new(SpritedEntityData::new(
                 Vec2::new(120.0, 100.0),
                 Vec2::new(texture.width() / 3.0, texture.height() / 3.0),
                 texture,
-            ),
+            )),
         ];
         return World {
             player,
@@ -55,7 +55,16 @@ impl World {
         self.draw_hud();
         self.map.draw();
         self.player.draw();
-        self.camera.draw_enemies(&mut self.enemies);
+        let all_entites = self.collect_all_entites();
+        self.camera.draw_all_entites(all_entites);
+    }
+    fn collect_all_entites(&self) -> Vec<&SpritedEntityData> {
+        let entities = self
+            .enemies
+            .iter()
+            .map(|enemy| &enemy.sprited_entity_data)
+            .collect::<Vec<&SpritedEntityData>>();
+        return entities;
     }
     fn draw_hud(&self) {
         draw_rectangle(

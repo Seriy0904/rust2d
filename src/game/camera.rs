@@ -8,7 +8,7 @@ use macroquad::{
     window::{screen_height, screen_width},
 };
 
-use super::{entities::SpritedEntity, map::Map, raycaster::Raycaster};
+use super::{entities::SpritedEntityData, map::Map, raycaster::Raycaster};
 
 pub const VIEW_ANGLE_STEP: f32 = 0.1;
 pub const VIEW_ANGLE: f32 = 90.0;
@@ -37,8 +37,8 @@ impl Camera {
     pub fn set_angle(&mut self, angle: f32) {
         self.angle = angle;
     }
-    pub fn draw_enemies(&self, enemies: &mut Vec<SpritedEntity>) {
-        enemies.sort_by(|a: &SpritedEntity, b: &SpritedEntity| -> Ordering {
+    pub fn draw_all_entites(&self, mut entities: Vec<&SpritedEntityData>) {
+        entities.sort_by(|a, b| -> Ordering {
             if ((a.pos.x - self.pos.x).powf(2.0) + (a.pos.y - self.pos.y).powf(2.0)).sqrt()
                 > ((b.pos.x - self.pos.x).powf(2.0) + (b.pos.y - self.pos.y).powf(2.0)).sqrt()
             {
@@ -47,18 +47,17 @@ impl Camera {
                 return Ordering::Greater;
             }
         });
-        for enemy in enemies {
-            self.draw_enemy(&enemy);
+        for entity in entities {
+            self.draw_entity(&entity);
         }
     }
-
-    fn draw_enemy(&self, enemy: &SpritedEntity) {
-        let dif = enemy.pos - self.pos;
+    fn draw_entity(&self, entity: &SpritedEntityData) {
+        let dif = entity.pos - self.pos;
         let dist = dif.length();
 
         let wall_width = screen_width() / (self.wall_dists.len()) as f32;
 
-        let perspective_size = Vec2::new(enemy.size.x, enemy.size.y) * 40.0 / (dist);
+        let perspective_size = Vec2::new(entity.size.x, entity.size.y) * 40.0 / (dist);
 
         let x_pos = self.x_from_dif(dif);
         if x_pos + perspective_size.x / 2.0 >= 0.0
@@ -72,7 +71,7 @@ impl Camera {
                 }
                 if self.wall_dists[current_wall as usize] as f32 > dist {
                     draw_texture_ex(
-                        &enemy.texture,
+                        &entity.texture,
                         current_wall as f32 * wall_width,
                         screen_height() / 2.0 - perspective_size.y / 2.0,
                         Color {
@@ -85,11 +84,11 @@ impl Camera {
                             dest_size: Some(Vec2::new(wall_width, perspective_size.y)),
                             source: Some(Rect::new(
                                 // 0.0,
-                                (current_wall - start_wall) as f32 * enemy.texture.width()
+                                (current_wall - start_wall) as f32 * entity.texture.width()
                                     / ((last_wall - start_wall) as f32),
                                 0.0,
-                                enemy.texture.width() / ((last_wall - start_wall) as f32),
-                                enemy.texture.height(),
+                                entity.texture.width() / ((last_wall - start_wall) as f32),
+                                entity.texture.height(),
                             )),
                             ..Default::default()
                         },
