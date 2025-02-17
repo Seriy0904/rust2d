@@ -28,8 +28,12 @@ impl World {
         let player = Player::new(20.0, 20.0);
         let map: Map = Map::new();
         let camera = Camera::new(VIEW_LENGTH);
-        let texture_manager =
-            TextureManager::new("src\\assets\\bullet.png", "src\\assets\\chel.png").await;
+        let texture_manager = TextureManager::new(
+            "src\\assets\\rassengan.png",
+            "src\\assets\\chel.png",
+            // "src\\assets\\hui.png",
+        )
+        .await;
         let enemies = vec![
             Enemy::new(SpritedEntityData::new(
                 Vec2::new(90.0, 90.0),
@@ -61,8 +65,12 @@ impl World {
     pub fn update(&mut self) {
         self.player
             .update(&self.map, &mut self.bullets, &self.texture_manager);
-        for bullet in &mut self.bullets {
-            bullet.update();
+        let mut bullet_ind = 0;
+        while bullet_ind < self.bullets.len() {
+            if self.bullets[bullet_ind].update(&self.map) {
+                self.bullets.remove(bullet_ind);
+            }
+            bullet_ind += 1;
         }
         self.camera.set_angle(self.player.view_angle);
         self.camera.set_pos(self.player.pos);
