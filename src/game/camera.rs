@@ -37,7 +37,7 @@ impl Camera {
     pub fn set_angle(&mut self, angle: f32) {
         self.angle = angle;
     }
-    pub fn draw_all_entites(&self, mut entities: Vec<&SpritedEntityData>) {
+    pub fn sort_by_camera(&self, entities: &mut Vec<&SpritedEntityData>) {
         entities.sort_by(|a, b| -> Ordering {
             if ((a.pos.x - self.pos.x).powf(2.0) + (a.pos.y - self.pos.y).powf(2.0)).sqrt()
                 > ((b.pos.x - self.pos.x).powf(2.0) + (b.pos.y - self.pos.y).powf(2.0)).sqrt()
@@ -47,6 +47,8 @@ impl Camera {
                 return Ordering::Greater;
             }
         });
+    }
+    pub fn draw_all_entites(&self, entities: &Vec<&SpritedEntityData>) {
         for entity in entities {
             self.draw_entity(&entity);
         }

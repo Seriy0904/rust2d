@@ -1,5 +1,3 @@
-use macroquad::{color::Color, shapes::draw_rectangle};
-
 pub const MAP_HEIGHT: usize = 16;
 pub const MAP_WIDTH: usize = 32;
 
@@ -87,27 +85,5 @@ impl Map {
             map_item_width: MINI_MAP_SIZE,
             map: MAP1,
         };
-    }
-
-    pub fn draw(&self) {
-        for y in 0..self.map_height {
-            for x in 0..self.map_width {
-                if self.map[y][x] == 1 {
-                    draw_rectangle(
-                        (x as f32) * self.map_item_width,
-                        (y as f32) * self.map_item_height,
-                        self.map_item_width,
-                        self.map_item_height,
-                        Color {
-                            r: 1.0,
-                            g: 1.0,
-                            b: 0.0,
-                            a: 1.0,
-                        },
-                    );
-                } else {
-                }
-            }
-        }
     }
 }

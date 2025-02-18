@@ -3,6 +3,7 @@ pub mod camera;
 pub mod enemy;
 pub mod entities;
 pub mod map;
+pub mod mini_map;
 pub mod player;
 pub mod raycaster;
 pub mod textures;

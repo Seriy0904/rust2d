@@ -1,12 +1,8 @@
 use std::f32::consts::PI;
 
-use macroquad::{
-    color::{BLUE, GREEN},
-    math::{vec2, Vec2},
-    shapes::draw_rectangle,
-};
+use macroquad::math::{vec2, Vec2};
 
-use super::map::{self, Map};
+use super::map::Map;
 
 pub struct Raycaster();
 impl Raycaster {

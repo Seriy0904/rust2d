@@ -10,7 +10,7 @@ use macroquad::{
 
 use super::{
     bullet::Bullet, camera::Camera, enemy::Enemy, entities::SpritedEntityData, map::Map,
-    player::Player, textures::TextureManager,
+    mini_map::MiniMap, player::Player, textures::TextureManager,
 };
 
 pub const VIEW_LENGTH: f32 = 300.0;
@@ -18,6 +18,7 @@ pub const VIEW_LENGTH: f32 = 300.0;
 pub struct World {
     player: Player,
     map: Map,
+    mini_map: MiniMap,
     camera: Camera,
     enemies: Vec<Enemy>,
     bullets: Vec<Bullet>,
@@ -53,9 +54,11 @@ impl World {
             )),
         ];
         let bullets = vec![];
+        let mini_map = MiniMap;
         return World {
             player,
             map,
+            mini_map,
             camera,
             enemies,
             bullets: bullets,
@@ -80,10 +83,12 @@ impl World {
         self.draw_env();
         self.camera.draw_map(&self.map);
         self.draw_hud();
-        self.map.draw();
+        self.mini_map.draw_map(&self.map);
         self.player.draw();
-        let all_entites = self.collect_all_entites();
-        self.camera.draw_all_entites(all_entites);
+        let mut all_entites = self.collect_all_entites();
+        self.camera.sort_by_camera(&mut all_entites);
+        self.camera.draw_all_entites(&all_entites);
+        self.mini_map.draw_entities(&all_entites);
     }
     fn collect_all_entites(&self) -> Vec<&SpritedEntityData> {
         let mut entities = vec![];

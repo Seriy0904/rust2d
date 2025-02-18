@@ -9,7 +9,7 @@ const PLAYER_DEFAULT_SPEED: f32 = 20.0;
 
 const ROTATE_SPEED_RADIANS: f32 = PI * 50.0;
 
-const PLAYER_SHOOT_COOLDWON: f32 = 0.1;
+const PLAYER_SHOOT_COOLDWON: f32 = 0.01;
 
 pub struct Player {
     pub pos: Vec2,
