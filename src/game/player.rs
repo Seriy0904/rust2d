@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use macroquad::prelude::*;
+use macroquad::{miniquad::window::quit, prelude::*};
 
 use super::{bullet::Bullet, map::Map, textures::TextureManager};
 
@@ -43,6 +43,7 @@ impl Player {
     ) {
         self.shooting(texture_manager, bullets);
         self.movement(map);
+        self.check_hitting(bullets)
     }
     pub fn draw(&self) {
         self.draw_char();
@@ -60,14 +61,18 @@ impl Player {
             },
         );
     }
+    fn check_hitting(&self, bullets: &mut Vec<Bullet>) {
+        for bullet in bullets {
+            if (bullet.sprited_entity_data.pos - self.pos).length() < self.radius - 1.0 {
+                quit();
+            }
+        }
+    }
     fn shooting(&mut self, texture_manager: &TextureManager, bullets: &mut Vec<Bullet>) {
         if is_key_down(KeyCode::Space) {
             if self.cooldownleft == 0.0 {
-                let bullet = Bullet::new(
-                    self.pos,
-                    vec2(self.view_angle.cos(), self.view_angle.sin()),
-                    &texture_manager,
-                );
+                let dir = vec2(self.view_angle.cos(), self.view_angle.sin());
+                let bullet = Bullet::new(self.pos + dir * self.radius, dir, &texture_manager);
                 bullets.push(bullet);
                 self.cooldownleft = self.cooldown;
             }

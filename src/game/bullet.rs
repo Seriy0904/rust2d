@@ -4,7 +4,7 @@ use macroquad::{
 };
 
 use super::{entities::SpritedEntityData, map::Map, textures::TextureManager};
-const BULLET_SPEED: f32 = 10.0;
+const BULLET_SPEED: f32 = 40.0;
 pub struct Bullet {
     pub sprited_entity_data: SpritedEntityData,
     pub dir: Vec2,

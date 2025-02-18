@@ -9,6 +9,7 @@ impl Enemy {
             sprited_entity_data,
         };
     }
+
     pub fn draw(&self) -> &SpritedEntityData {
         return &self.sprited_entity_data;
     }
