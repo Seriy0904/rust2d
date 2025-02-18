@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use macroquad::math::Vec2;
+use macroquad::math::{vec2, Vec2};
 
 use super::map::Map;
 
@@ -50,12 +50,13 @@ impl Raycaster {
                 break;
             }
         }
-        return if is_h == 0 {
-            (length, Vec2::new(-1.0, -1.0))
+        let max_len = if is_h == 0 {
+            length
         } else if is_h == 1 {
-            (h_length - h_length_offset, reached_pos)
+            h_length - h_length_offset
         } else {
-            (v_length - v_length_offset, reached_pos)
+            v_length - v_length_offset
         };
+        return (max_len, vec2(max_len * angle.cos(), max_len * angle.sin()));
     }
 }

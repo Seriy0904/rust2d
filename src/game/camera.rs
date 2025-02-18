@@ -1,9 +1,9 @@
 use std::{cmp::Ordering, f32::consts::PI, vec};
 
 use macroquad::{
-    color::Color,
+    color::{Color, RED},
     math::{clamp, Rect, Vec2},
-    shapes::draw_rectangle,
+    shapes::{draw_circle, draw_line, draw_rectangle},
     texture::{draw_texture_ex, DrawTextureParams},
     window::{screen_height, screen_width},
 };
@@ -129,7 +129,7 @@ impl Camera {
         self.wall_dists.clear();
         let mut angle: f32 = -self.fov / 2.0;
         while angle < self.fov / 2.0 {
-            let (dist, _coords) = Raycaster::raycast(
+            let (dist, coords) = Raycaster::raycast(
                 map,
                 self.pos,
                 self.angle + angle.to_radians(),
@@ -137,6 +137,7 @@ impl Camera {
             );
             let corrected_dist = dist * (angle.to_radians()).cos();
             let y_offset = 2.0 * screen_height() / (corrected_dist);
+            self.draw_fov(coords, angle);
             draw_rectangle(
                 screen_width() * ((angle + self.fov / 2.0) / self.fov),
                 screen_height() / 2.0 - y_offset,
@@ -154,5 +155,31 @@ impl Camera {
             angle += self.view_angle_step;
         }
     }
-    // raycaster
+    fn draw_fov(&self, fov_coords: Vec2, angle: f32) {
+        if angle == -self.fov / 2.0 {
+            draw_line(
+                self.pos.x,
+                self.pos.y,
+                self.pos.x + fov_coords.x,
+                self.pos.y + fov_coords.y,
+                2.0,
+                RED,
+            );
+        } else if angle + self.view_angle_step >= self.fov / 2.0 {
+            draw_line(
+                self.pos.x,
+                self.pos.y,
+                self.pos.x + fov_coords.x,
+                self.pos.y + fov_coords.y,
+                2.0,
+                RED,
+            );
+        }
+        draw_circle(
+            self.pos.x + fov_coords.x,
+            self.pos.y + fov_coords.y,
+            2.0,
+            RED,
+        );
+    }
 }
