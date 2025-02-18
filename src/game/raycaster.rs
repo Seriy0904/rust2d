@@ -1,8 +1,12 @@
 use std::f32::consts::PI;
 
-use macroquad::math::{vec2, Vec2};
+use macroquad::{
+    color::{BLUE, GREEN},
+    math::{vec2, Vec2},
+    shapes::draw_rectangle,
+};
 
-use super::map::Map;
+use super::map::{self, Map};
 
 pub struct Raycaster();
 impl Raycaster {
@@ -11,9 +15,8 @@ impl Raycaster {
             (pos.x / map.map_item_width).floor(),
             (pos.y / map.map_item_height).floor(),
         );
-        let sin: f32 = angle.sin();
+        let sin: f32 = angle.sin() * (map.map_item_width / map.map_item_height);
         let cos: f32 = angle.cos();
-
         let h_length_offset = map.map_item_width / sin.abs();
         let v_length_offset = map.map_item_height / cos.abs();
 
@@ -46,8 +49,14 @@ impl Raycaster {
                 v_length += v_length_offset;
                 is_h = 2;
             }
-            if map.map[reached_pos.y as usize][reached_pos.x as usize] != 0 {
-                break;
+            if reached_pos.y >= 0.0
+                && map.map_height > reached_pos.y as usize
+                && reached_pos.x >= 0.0
+                && map.map_width > reached_pos.x as usize
+            {
+                if map.map[reached_pos.y as usize][reached_pos.x as usize] != 0 {
+                    break;
+                }
             }
         }
         let max_len = if is_h == 0 {

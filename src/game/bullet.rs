@@ -30,9 +30,9 @@ impl Bullet {
         let pot_map_pos = (self.sprited_entity_data.pos + delta * self.dir * BULLET_SPEED)
             / vec2(map.map_item_width, map.map_item_height);
         if pot_map_pos.x >= 0.0
-            && pot_map_pos.x < map.map_size as f32
+            && pot_map_pos.x < map.map_width as f32
             && pot_map_pos.y >= 0.0
-            && pot_map_pos.y < map.map_size as f32
+            && pot_map_pos.y < map.map_height as f32
         {
             if map.map[pot_map_pos.y as usize][map_pos.x as usize] == 1 {
                 self.dir.y *= -1.0;

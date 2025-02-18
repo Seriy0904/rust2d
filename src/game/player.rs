@@ -89,9 +89,9 @@ impl Player {
             (pot_player_pos / Vec2::new(map.map_item_width, map.map_item_height)).floor();
         let map_pos = (self.pos / Vec2::new(map.map_item_width, map.map_item_height)).floor();
         if pot_map_pos.y < 0.0
-            || pot_map_pos.y >= map.map_size as f32
+            || pot_map_pos.y >= map.map_height as f32
             || pot_map_pos.x < 0.0
-            || pot_map_pos.x >= map.map_size as f32
+            || pot_map_pos.x >= map.map_width as f32
         {
             self.dir.x = 0.0;
             self.dir.y = 0.0;
