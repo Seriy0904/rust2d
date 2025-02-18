@@ -9,7 +9,7 @@ const PLAYER_DEFAULT_SPEED: f32 = 20.0;
 
 const ROTATE_SPEED_RADIANS: f32 = PI * 50.0;
 
-const PLAYER_SHOOT_COOLDWON: f32 = 0.5;
+const PLAYER_SHOOT_COOLDWON: f32 = 0.1;
 
 pub struct Player {
     pub pos: Vec2,
@@ -63,11 +63,12 @@ impl Player {
     fn shooting(&mut self, texture_manager: &TextureManager, bullets: &mut Vec<Bullet>) {
         if is_key_down(KeyCode::Space) {
             if self.cooldownleft == 0.0 {
-                bullets.push(Bullet::new(
+                let bullet = Bullet::new(
                     self.pos,
                     vec2(self.view_angle.cos(), self.view_angle.sin()),
                     &texture_manager,
-                ));
+                );
+                bullets.push(bullet);
                 self.cooldownleft = self.cooldown;
             }
         }

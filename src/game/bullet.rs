@@ -6,8 +6,9 @@ use macroquad::{
 use super::{entities::SpritedEntityData, map::Map, textures::TextureManager};
 const BULLET_SPEED: f32 = 10.0;
 pub struct Bullet {
-    sprited_entity_data: SpritedEntityData,
-    dir: Vec2,
+    pub sprited_entity_data: SpritedEntityData,
+    pub dir: Vec2,
+    pub ricocher_count: usize,
 }
 
 impl Bullet {
@@ -19,21 +20,34 @@ impl Bullet {
                 texture_manager.bullet_texture.clone(),
             ),
             dir,
+            ricocher_count: 0,
         };
     }
     pub fn update(&mut self, map: &Map) -> bool {
         let delta = get_frame_time();
-        self.sprited_entity_data.pos += delta * self.dir * BULLET_SPEED;
-        let map_pos = self.sprited_entity_data.pos / vec2(map.map_item_width, map.map_item_height);
-        if map_pos.x >= 0.0
-            && map_pos.x < map.map_size as f32
-            && map_pos.y >= 0.0
-            && map_pos.y < map.map_size as f32
+        let map_pos =
+            (self.sprited_entity_data.pos) / vec2(map.map_item_width, map.map_item_height);
+        let pot_map_pos = (self.sprited_entity_data.pos + delta * self.dir * BULLET_SPEED)
+            / vec2(map.map_item_width, map.map_item_height);
+        if pot_map_pos.x >= 0.0
+            && pot_map_pos.x < map.map_size as f32
+            && pot_map_pos.y >= 0.0
+            && pot_map_pos.y < map.map_size as f32
         {
-            if map.map[map_pos.y as usize][map_pos.x as usize] == 1 {
-                return true;
+            if map.map[pot_map_pos.y as usize][map_pos.x as usize] == 1 {
+                self.dir.y *= -1.0;
+                self.ricocher_count += 1;
+            }
+            if map.map[map_pos.y as usize][pot_map_pos.x as usize] == 1 {
+                self.dir.x *= -1.0;
+                self.ricocher_count += 1;
             }
         }
+        if self.ricocher_count >= 4 {
+            return true;
+        }
+        self.sprited_entity_data.pos =
+            self.sprited_entity_data.pos + delta * self.dir * BULLET_SPEED;
         return false;
     }
     pub fn draw(&self) -> &SpritedEntityData {

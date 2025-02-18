@@ -77,10 +77,10 @@ impl Camera {
                         current_wall as f32 * wall_width,
                         screen_height() / 2.0 - perspective_size.y / 2.0,
                         Color {
-                            r: 40.0 / dist,
-                            g: 40.0 / dist,
-                            b: 40.0 / dist,
-                            a: 1.0,
+                            r: entity.color.r * (100.0 - dist) / 90.0,
+                            g: entity.color.g * (100.0 - dist) / 90.0,
+                            b: entity.color.b * (100.0 - dist) / 90.0,
+                            a: entity.color.a,
                         },
                         DrawTextureParams {
                             dest_size: Some(Vec2::new(wall_width, perspective_size.y)),
