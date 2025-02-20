@@ -77,18 +77,19 @@ impl World {
         }
         self.camera.set_angle(self.player.view_angle);
         self.camera.set_pos(self.player.pos);
+        self.camera.update();
         self.draw();
     }
     fn draw(&mut self) {
-        self.draw_env();
-        self.camera.draw_map(&self.map);
-        self.draw_hud();
+        self.camera.draw_env();
+        self.camera.draw_walls(&self.map);
         self.mini_map.draw_map(&self.map);
         self.player.draw();
         let mut all_entites = self.collect_all_entites();
         self.camera.sort_by_camera(&mut all_entites);
         self.camera.draw_all_entites(&all_entites);
         self.mini_map.draw_entities(&all_entites);
+        self.draw_hud();
     }
     fn collect_all_entites(&self) -> Vec<&SpritedEntityData> {
         let mut entities = vec![];
@@ -153,39 +154,5 @@ impl World {
                 a: 1.0,
             },
         );
-    }
-    fn draw_env(&self) {
-        draw_rectangle(
-            0.0,
-            0.0,
-            screen_width(),
-            screen_height() / 2.0,
-            Color {
-                r: 0.27,
-                g: 0.52,
-                b: 0.73,
-                a: 1.0,
-            },
-        );
-        let y_offset = screen_height() / (2.0 * 100.0);
-        let mut y_start = screen_height() / 2.0;
-        while y_start < screen_height() {
-            draw_rectangle(
-                0.0,
-                y_start,
-                screen_width(),
-                y_start,
-                Color {
-                    r: ((y_start + 30.0 - (screen_height() / 2.0)) / (screen_height() / 2.0)) * 1.0
-                        + 0.02,
-                    g: ((y_start + 30.0 - (screen_height() / 2.0)) / (screen_height() / 2.0)) * 1.0
-                        + 0.02,
-                    b: ((y_start + 30.0 - (screen_height() / 2.0)) / (screen_height() / 2.0)) * 1.0
-                        + 0.02,
-                    a: 1.0,
-                },
-            );
-            y_start += y_offset;
-        }
     }
 }

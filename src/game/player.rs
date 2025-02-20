@@ -7,7 +7,7 @@ use super::{bullet::Bullet, map::Map, textures::TextureManager};
 const PLAYER_RADIUS: f32 = 4.0;
 const PLAYER_DEFAULT_SPEED: f32 = 20.0;
 
-const ROTATE_SPEED_RADIANS: f32 = PI * 50.0;
+pub const ROTATE_SPEED_RADIANS: f32 = PI * 50.0;
 
 const PLAYER_SHOOT_COOLDWON: f32 = 0.01;
 
@@ -17,7 +17,6 @@ pub struct Player {
     radius: f32,
     // glance_len: f32,
     dir: Vec2,
-    rotate: f32,
     speed: f32,
     cooldown: f32,
     pub cooldownleft: f32,
@@ -29,7 +28,6 @@ impl Player {
             view_angle: 0.0,
             radius: PLAYER_RADIUS,
             dir: Vec2::ZERO,
-            rotate: 0.0,
             speed: PLAYER_DEFAULT_SPEED,
             cooldown: PLAYER_SHOOT_COOLDWON,
             cooldownleft: 0.0,
@@ -43,7 +41,7 @@ impl Player {
     ) {
         self.shooting(texture_manager, bullets);
         self.movement(map);
-        self.check_hitting(bullets)
+        // self.check_hitting(bullets);
     }
     pub fn draw(&self) {
         self.draw_char();
@@ -113,7 +111,6 @@ impl Player {
     }
     fn movement(&mut self, map: &Map) {
         let mut offset = Vec2::ZERO;
-        self.rotate = -mouse_delta_position().x;
         if is_key_down(KeyCode::W) {
             offset.y += 1.0;
         }
@@ -127,7 +124,7 @@ impl Player {
             offset.x -= 1.0;
         }
         let delta = get_frame_time();
-        self.view_angle += self.rotate * ROTATE_SPEED_RADIANS * delta;
+        self.view_angle += -mouse_delta_position().x * ROTATE_SPEED_RADIANS * delta;
         if self.view_angle < 0.0 {
             self.view_angle = PI * 2.0;
         } else if self.view_angle > PI * 2.0 {
@@ -140,6 +137,5 @@ impl Player {
         self.check_for_collision(map);
         self.pos += self.dir;
         self.dir = Vec2::ZERO;
-        self.rotate = 0.0;
     }
 }

@@ -2,8 +2,10 @@ use std::{cmp::Ordering, f32::consts::PI, vec};
 
 use macroquad::{
     color::{Color, RED},
+    input::mouse_delta_position,
     math::{clamp, Rect, Vec2},
     shapes::{draw_circle, draw_line, draw_rectangle},
+    text::draw_text,
     texture::{draw_texture_ex, DrawTextureParams},
     window::{screen_height, screen_width},
 };
@@ -15,6 +17,7 @@ pub const VIEW_ANGLE: f32 = 90.0;
 pub struct Camera {
     glance_len: f32,
     angle: f32,
+    horizont_line: f32,
     pos: Vec2,
     view_angle_step: f32,
     fov: f32,
@@ -29,6 +32,7 @@ impl Camera {
             view_angle_step: VIEW_ANGLE_STEP,
             fov: VIEW_ANGLE,
             wall_dists: vec![],
+            horizont_line: screen_height() / 2.0,
         };
     }
     pub fn set_pos(&mut self, pos: Vec2) {
@@ -36,6 +40,9 @@ impl Camera {
     }
     pub fn set_angle(&mut self, angle: f32) {
         self.angle = angle;
+    }
+    pub fn update(&mut self) {
+        self.key_handling();
     }
     pub fn sort_by_camera(&self, entities: &mut Vec<&SpritedEntityData>) {
         entities.sort_by(|a, b| -> Ordering {
@@ -77,7 +84,7 @@ impl Camera {
                     draw_texture_ex(
                         &(entity.texture.clone()),
                         current_wall as f32 * wall_width,
-                        screen_height() / 2.0 - perspective_size.y / 2.0,
+                        self.horizont_line - perspective_size.y / 2.0,
                         Color {
                             r: entity.color.r * (100.0 - dist) / 90.0,
                             g: entity.color.g * (100.0 - dist) / 90.0,
@@ -127,7 +134,7 @@ impl Camera {
         return x_pos;
     }
 
-    pub fn draw_map(&mut self, map: &Map) {
+    pub fn draw_walls(&mut self, map: &Map) {
         self.wall_dists.clear();
         let mut angle: f32 = -self.fov / 2.0;
         while angle < self.fov / 2.0 {
@@ -142,7 +149,7 @@ impl Camera {
             self.draw_fov(coords, angle);
             draw_rectangle(
                 screen_width() * ((angle + self.fov / 2.0) / self.fov),
-                screen_height() / 2.0 - y_offset,
+                self.horizont_line - y_offset,
                 screen_width() / (self.fov / self.view_angle_step),
                 y_offset * 2.0,
                 // 2.0,
@@ -183,5 +190,53 @@ impl Camera {
             2.0,
             RED,
         );
+    }
+    fn key_handling(&mut self) {
+        self.horizont_line += mouse_delta_position().y * 400.0;
+        if self.horizont_line > screen_height() {
+            self.horizont_line = screen_height();
+        } else if self.horizont_line < 0.0 {
+            self.horizont_line = 0.0;
+        }
+    }
+    pub fn draw_env(&self) {
+        let start_y = self.horizont_line;
+        draw_rectangle(
+            0.0,
+            0.0,
+            screen_width(),
+            start_y,
+            Color {
+                r: 0.27,
+                g: 0.52,
+                b: 0.73,
+                a: 1.0,
+            },
+        );
+        draw_text(
+            &format!("HorLine {}", mouse_delta_position().y),
+            5.0,
+            150.0,
+            30.0,
+            RED,
+        );
+        let y_offset = screen_height() / (2.0 * 100.0);
+        let mut current_y = start_y;
+        let ground_height = screen_height() - start_y;
+        while current_y < screen_height() {
+            draw_rectangle(
+                0.0,
+                current_y,
+                screen_width(),
+                y_offset,
+                Color {
+                    r: ((current_y + 30.0 - start_y) / ground_height) * 1.0 + 0.02,
+                    g: ((current_y + 30.0 - start_y) / ground_height) * 1.0 + 0.02,
+                    b: ((current_y + 30.0 - start_y) / ground_height) * 1.0 + 0.02,
+                    a: 1.0,
+                },
+            );
+            current_y += y_offset;
+        }
     }
 }
